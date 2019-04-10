@@ -1,4 +1,5 @@
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.io.*;
 import java.lang.*;
@@ -13,6 +14,7 @@ public class Track{
 	private List<Point> a;
 	private int lowestPoint, highestPoint;
 	private double totalDist;
+	private ZonedDateTime pre,post;
 	/**
 	 * Initialize an empty track
 	 */
@@ -29,11 +31,9 @@ public class Track{
 		//Notice: directly running under eclipse causes the execution route being the installation route of java.
 		Scanner sc = new Scanner(new File(name));
 		a.clear();
-		highestPoint=lowestPoint=0;
 		while(sc.hasNextLine()) {
-			String s=sc.nextLine();
-			String[] ch=s.split(",");
-			if(ch.length!=4) {
+			String[] ch=sc.nextLine().split(",");
+			if(ch.length<4) {
 				sc.close();
 				throw(new GPSException("Missing Parameter(s)"));
 			}
@@ -45,16 +45,7 @@ public class Track{
 			}catch(NumberFormatException E) {
 				continue;//Filter headers
 			}
-			Point p=new Point(ZonedDateTime.parse(ch[0]),x,y,e);
-			if(a.isEmpty()) {
-				totalDist=0;
-			}
-			else {
-				totalDist+=Point.greatCircleDistance(p, get(a.size()-1));
-			}
-			a.add(p);
-			if(e>get(highestPoint).getElevation())highestPoint=a.size()-1;
-			if(e<get(lowestPoint).getElevation())lowestPoint=a.size()-1;
+			add(new Point(ZonedDateTime.parse(ch[0]),x,y,e));
 		}
 		sc.close();
 	}
@@ -75,7 +66,8 @@ public class Track{
 	public Point highestPoint() throws GPSException{
 		if(a.size()<1)throw(new GPSException("No point in track"));
 		return get(highestPoint);
-	}/**
+	}
+	/**
 	 * get the total distance of the track
 	 * @return double the total distance
 	 * @throws GPSException if not enough points in track
@@ -84,21 +76,29 @@ public class Track{
 		if(a.size()<2)throw(new GPSException("No enough points in track"));
 		return totalDist;
 	}
+	public double averageSpeed() {
+		if(a.size()<2)throw(new GPSException("No enough points in track"));
+		return totalDist/ChronoUnit.SECONDS.between(pre, post);
+	}
 	/**
 	 * Add a point to the end of the track
 	 * @param p the point to be added
 	 */
 	public void add(Point p) {
+		ZonedDateTime t=p.getTime();
 		if(a.isEmpty()) {
 			totalDist=lowestPoint=highestPoint=0;
+			pre=post=t;
 		}
 		else {
+			double e=p.getElevation();
 			totalDist+=Point.greatCircleDistance(p, get(a.size()-1));
+			if(t.compareTo(pre)<0)pre=t;
+			else if(t.compareTo(post)>0)post=t;
+			if(e>get(highestPoint).getElevation())highestPoint=a.size();
+			else if(e<get(lowestPoint).getElevation())lowestPoint=a.size();
 		}
 		a.add(p);
-		double e=p.getElevation();
-		if(e>get(highestPoint).getElevation())highestPoint=a.size()-1;
-		if(e<get(lowestPoint).getElevation())lowestPoint=a.size()-1;
 	}
 	/**
 	 * Get the size of the track
