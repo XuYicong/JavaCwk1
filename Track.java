@@ -24,13 +24,15 @@ public class Track{
 	/**
 	 * Import track data from a CSV file.
 	 * @param Path of the file
+	 * @return 
 	 * @throws FileNotFoundException
 	 * @throws GPSException if format of the file is damaged
 	 */
-	public void readFile(String name) throws FileNotFoundException,GPSException{
+	public List<Double> readFile(String name) throws FileNotFoundException,GPSException{
 		//Notice: directly running under eclipse causes the execution route being the installation route of java.
 		Scanner sc = new Scanner(new File(name));
 		a.clear();
+		List<Double>ret=new ArrayList<Double>();
 		while(sc.hasNextLine()) {
 			String[] ch=sc.nextLine().split(",");
 			if(ch.length<4) {
@@ -46,8 +48,14 @@ public class Track{
 				continue;//Filter headers
 			}
 			add(new Point(ZonedDateTime.parse(ch[0]),x,y,e));
+			try {
+				ret.add(totalDistance());
+			}catch(GPSException ex) {
+				ret.add(0.0);
+			}
 		}
 		sc.close();
+		return ret;
 	}
 	/**
 	 * get the point with lowest elevation

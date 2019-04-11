@@ -14,8 +14,8 @@ public class TrackInfo{
 		System.out.println(a.size()+" points in track");
 		System.out.println("Lowest point is "+a.lowestPoint());
 		System.out.println("Highest point is "+a.highestPoint());
-		System.out.println("Total distance = "+(a.totalDistance()/1000)+" km");
-		System.out.println("Average speed = "+a.averageSpeed()+" m/s");
+		System.out.println("Total distance = "+String.format("%.3f",a.totalDistance()/1000)+" km");
+		System.out.println("Average speed = "+String.format("%.3f", a.averageSpeed())+" m/s");
 	}
 	static void helpMessage() {
 		System.out.println("A file name should be supplied as command line argument from which the data is imported to the track whose info is to be displayed.");
@@ -24,6 +24,7 @@ public class TrackInfo{
 	public static void main(String[] args){
 		Track a=new Track();
 		String filename="";
+		//Dealing with file names
 		try {
 			filename=args[0];
 		}catch(ArrayIndexOutOfBoundsException e) {
@@ -31,6 +32,7 @@ public class TrackInfo{
 			helpMessage();
 			System.exit(1);
 		}
+		//Dealing with tracks
 		try{
 			a.readFile(filename);
 			print(a);
