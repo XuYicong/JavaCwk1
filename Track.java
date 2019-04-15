@@ -24,12 +24,11 @@ public class Track{
 	/**
 	 * Import track data from a CSV file.
 	 * @param Path of the file
-	 * @return 
+	 * @return A list of distances to be used to plot elevation
 	 * @throws FileNotFoundException
 	 * @throws GPSException if format of the file is damaged
 	 */
 	public List<Double> readFile(String name) throws FileNotFoundException,GPSException{
-		//Notice: directly running under eclipse causes the execution route being the installation route of java.
 		Scanner sc = new Scanner(new File(name));
 		a.clear();
 		List<Double>ret=new ArrayList<Double>();
@@ -37,7 +36,7 @@ public class Track{
 			String[] ch=sc.nextLine().split(",");
 			if(ch.length<4) {
 				sc.close();
-				throw(new GPSException("Missing Parameter(s)"));
+				throw(new GPSException("Error while reading track file: Some point in the track file doesn't have sufficient information."));
 			}
 			double x,y,e;
 			try {

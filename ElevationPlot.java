@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.List;
 
 import javafx.application.Application;
@@ -28,35 +29,36 @@ public class ElevationPlot extends Application {
 	        lineChart.setCreateSymbols(false);
 	        //defining a series
 		    getParameters().getRaw().forEach((String name)->{
+		    	//Add multiple lines to the graph
 		    	XYChart.Series series = new XYChart.Series();
-		    	String[] Name=name.split("\\\\");
-		        series.setName(Name[Name.length-1]);
 		        Track tk=new Track();
 		        List<Double>dis;
 			    try {
+			    	//readFile() is modified so that it returns a list of distances
 			    	dis=tk.readFile(name);
 		        }catch(Exception e) {
 		        	e.printStackTrace();
 		        	return;
 		        }
+		    	//Set the series name to file name
+		        series.setName(new File(name).getName());
 		        //populating the series with data
-		        //series.getData().clear();
 		        for(int i=0;i<tk.size();++i) {
 		        	series.getData().add(new XYChart.Data(dis.get(i), tk.get(i).getElevation()));
 		        }
-		        //series.getData().add(new XYChart.Data(2, 14));
-		        //series.getData().add(new XYChart.Data(3, 15));
-		        
-		        Scene scene  = new Scene(lineChart,1280,640);
 		        lineChart.getData().add(series);
-		       
-		        stage.setScene(scene);
-		        stage.show();
-	        	
 	        });
-		    //Platform.exit();
+	        Scene scene  = new Scene(lineChart,1280,640);
+	       
+	        stage.setScene(scene);
+	        stage.show();
 	    }
  public static void main(String[] args) {
+	 	if(args.length<1) {
+	 		System.err.println("Error: No file name provided");
+	 		System.out.println("The track file to be plotted should be passed in as a command line argument");
+	 		System.exit(-1);
+	 	}
         launch(args);
     }
 }

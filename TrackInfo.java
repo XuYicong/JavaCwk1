@@ -28,7 +28,7 @@ public class TrackInfo{
 		try {
 			filename=args[0];
 		}catch(ArrayIndexOutOfBoundsException e) {
-			System.out.println("No file name is supplied");
+			System.err.println("Error: No file name is supplied");
 			helpMessage();
 			System.exit(1);
 		}
